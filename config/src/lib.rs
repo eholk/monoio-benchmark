@@ -13,15 +13,15 @@ pub struct ServerConfig {
         long,
         min_values = 1,
         default_value = "1",
-        about = "cpu core id list"
     )]
+    /// cpu core id list
     pub cores: Vec<u8>,
     #[clap(
         short,
         long,
-        about = "bind address, like 127.0.0.1:8080",
         default_value = "[::]:40000"
     )]
+    /// bind address, like 127.0.0.1:8080,
     pub bind: String,
 }
 
@@ -33,28 +33,28 @@ pub struct ClientConfig {
         long,
         min_values = 1,
         default_value = "0",
-        about = "cpu core id list"
     )]
+    /// cpu core id list
     pub cores: Vec<u8>,
     #[clap(
         short = 'n',
         long,
-        about = "connection numbers per core",
         default_value = "50"
     )]
+    /// connection numbers per core"
     pub conns_per_core: usize,
     #[clap(
         short,
         long,
-        about = "QPS limit per core, leave blank means unlimited"
     )]
+    /// QPS limit per core, leave blank means unlimited
     pub qps_per_core: Option<usize>,
     #[clap(
         short,
         long,
-        about = "target address, like 127.0.0.1:8080",
         default_value = "127.0.0.1:40000"
     )]
+    /// target address, like 127.0.0.1:8080"
     pub target: String,
 }
 

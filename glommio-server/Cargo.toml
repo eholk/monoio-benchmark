@@ -6,5 +6,5 @@ edition = "2021"
 [dependencies]
 config = {path="../config"}
 
-glommio = "0.6"
-futures-lite = "1.12"
+glommio = "0"
+futures-lite = "1"
