@@ -59,12 +59,19 @@ CPU slot: {}",
         });
     }
 
+    const WARMUP: Duration = Duration::from_secs(10);
+
+    println!("warming up for {} seconds", WARMUP.as_secs());
+
+    std::thread::sleep(WARMUP);
+
     // every second(not precise), we will print the status
-    let mut count_last = 0;
+    let count_start = count.load(std::sync::atomic::Ordering::Relaxed);
+    let mut count_last = count_start;
     let instant = std::time::Instant::now();
     loop {
         std::thread::sleep(Duration::from_secs(1));
-        let count_now = count.load(std::sync::atomic::Ordering::Relaxed);
+        let count_now = count.load(std::sync::atomic::Ordering::Relaxed) - count_start;
         let eps_now = eps.load(std::sync::atomic::Ordering::Relaxed);
         let eps_sec = instant.elapsed().as_secs_f32();
         println!(
