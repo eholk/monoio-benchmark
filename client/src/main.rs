@@ -67,7 +67,7 @@ CPU slot: {}",
 
     // every second(not precise), we will print the status
     let count_start = count.load(std::sync::atomic::Ordering::Relaxed);
-    let mut count_last = count_start;
+    let mut count_last = 0;
     let instant = std::time::Instant::now();
     loop {
         std::thread::sleep(Duration::from_secs(1));
