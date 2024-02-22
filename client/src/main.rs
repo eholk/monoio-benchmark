@@ -121,15 +121,17 @@ async fn run_conn(
 
         let begin = std::time::Instant::now();
         let (w, buf_w) = stream.write_all(buf).await;
-        if w.is_err() {
+        if let Err(e) = w {
             // The connection is closed.
             println!("Write failed, connection exit");
+            println!("Error: {:?}", e);
             return;
         }
         let (r, buf_r) = stream.read_exact(buf_w).await;
-        if r.is_err() {
+        if let Err(e) = r {
             // The connection is closed.
             println!("Read failed, connection exit");
+            println!("Error: {:?}", e);
             return;
         }
         let eps_ = begin.elapsed().as_micros() as u64;
