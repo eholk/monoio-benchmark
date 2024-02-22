@@ -13,7 +13,7 @@ pub struct ServerConfig {
     /// bind address, like 127.0.0.1:8080,
     #[clap(default_value = "[::]:40000")]
     pub bind: String,
-    #[clap(short = 'c', long, default_value = "1024")]
+    #[clap(short = 's', long, default_value = "1024")]
     pub byte_count: u32,
 }
 
@@ -33,7 +33,7 @@ pub struct ClientConfig {
     /// target address, like 127.0.0.1:8080"
     #[clap(default_value = "127.0.0.1:40000")]
     pub target: String,
-    #[clap(short = 'c', long, default_value = "1024")]
+    #[clap(short = 's', long, default_value = "1024")]
     pub byte_count: u32,
 }
 
