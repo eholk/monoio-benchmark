@@ -89,6 +89,8 @@ async fn run_thread(count: Arc<AtomicUsize>, eps: Arc<AtomicU64>, cfg: Arc<Clien
             sem.clone(),
             cfg.target.clone(),
         )));
+        // Wait a little bit to keep from overloading the server.
+        monoio::time::sleep(Duration::from_millis(10)).await;
     }
     let mut interval = monoio::time::interval(Duration::from_secs(1) / COUNT_GRAIN_PRE_SEC);
     loop {
