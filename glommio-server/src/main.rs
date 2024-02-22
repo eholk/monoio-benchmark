@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use config::{ServerConfig, PACKET_SIZE};
+use config::ServerConfig;
 use futures_lite::{AsyncReadExt, AsyncWriteExt, StreamExt};
 use glommio::{net::TcpListener, LocalExecutorBuilder};
 
@@ -8,7 +8,7 @@ fn main() {
     let cfg = Arc::new(ServerConfig::parse());
     println!(
         "Running ping pong server with Glommio.\nPacket size: {}\nListen {}\nCPU slot: {}",
-        PACKET_SIZE,
+        cfg.byte_count,
         cfg.bind,
         config::format_cores(&cfg.cores)
     );
@@ -36,8 +36,9 @@ async fn serve(cfg: Arc<ServerConfig>) {
     let mut incoming = listener.incoming();
     while let Some(stream) = incoming.next().await {
         let mut stream = stream.unwrap();
+        let byte_count = cfg.byte_count as usize;
         glommio::spawn_local(async move {
-            let mut buf = vec![0; PACKET_SIZE];
+            let mut buf = vec![0; byte_count];
             loop {
                 match stream.read_exact(&mut buf).await {
                     Ok(_) => {}

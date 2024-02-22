@@ -1,61 +1,40 @@
 use clap::Parser;
 
-// in Byte
-pub const PACKET_SIZE: usize = 1024;
 // 1s/10 = 100ms
 pub const COUNT_GRAIN_PRE_SEC: u32 = 10;
 
 #[derive(Parser, Debug, Clone, PartialEq)]
 #[clap(version = "1.0", author = "ihciah <ihciah@gmail.com>")]
 pub struct ServerConfig {
-    #[clap(
-        short,
-        long,
-        min_values = 1,
-        default_value = "1",
-    )]
+    #[clap(short, long, min_values = 1, default_value = "1")]
     /// cpu core id list
     pub cores: Vec<u8>,
-    #[clap(
-        short,
-        long,
-        default_value = "[::]:40000"
-    )]
+    #[clap(short, long)]
     /// bind address, like 127.0.0.1:8080,
+    #[clap(default_value = "[::]:40000")]
     pub bind: String,
+    #[clap(short = 'c', long, default_value = "1024")]
+    pub byte_count: u32,
 }
 
 #[derive(Parser, Debug, Clone, PartialEq)]
 #[clap(version = "1.0", author = "ihciah <ihciah@gmail.com>")]
 pub struct ClientConfig {
-    #[clap(
-        short,
-        long,
-        min_values = 1,
-        default_value = "0",
-    )]
+    #[clap(short, long, min_values = 1, default_value = "0")]
     /// cpu core id list
     pub cores: Vec<u8>,
-    #[clap(
-        short = 'n',
-        long,
-        default_value = "50"
-    )]
+    #[clap(short = 'n', long, default_value = "50")]
     /// connection numbers per core"
     pub conns_per_core: usize,
-    #[clap(
-        short,
-        long,
-    )]
+    #[clap(short, long)]
     /// QPS limit per core, leave blank means unlimited
     pub qps_per_core: Option<usize>,
-    #[clap(
-        short,
-        long,
-        default_value = "127.0.0.1:40000"
-    )]
+    #[clap(short, long)]
     /// target address, like 127.0.0.1:8080"
+    #[clap(default_value = "127.0.0.1:40000")]
     pub target: String,
+    #[clap(short = 'c', long, default_value = "1024")]
+    pub byte_count: u32,
 }
 
 impl ServerConfig {
@@ -89,7 +68,8 @@ mod tests {
             cfg,
             ServerConfig {
                 cores: vec![1, 2],
-                bind: ":8080".to_string()
+                bind: ":8080".to_string(),
+                byte_count: 1024
             }
         );
 
@@ -98,7 +78,8 @@ mod tests {
             cfg,
             ServerConfig {
                 cores: vec![1],
-                bind: ":8080".to_string()
+                bind: ":8080".to_string(),
+                byte_count: 1024
             }
         );
     }

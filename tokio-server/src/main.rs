@@ -1,6 +1,6 @@
 // Since we can hardly control every thread, we should use `taskset`.
 
-use config::{ServerConfig, PACKET_SIZE};
+use config::ServerConfig;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpListener,
@@ -12,7 +12,7 @@ fn main() {
     let cores = cfg.cores.len();
     println!(
         "Running ping pong server with Tokio.\nPacket size: {}\nListen {}\nCPU count: {}",
-        PACKET_SIZE, cfg.bind, cores
+        cfg.byte_count, cfg.bind, cores
     );
     let rt = if cores == 1 {
         Builder::new_current_thread().enable_all().build().unwrap()
@@ -32,8 +32,9 @@ async fn serve(cfg: &ServerConfig, rt: &Runtime) {
 
     loop {
         let (mut stream, _) = listener.accept().await.unwrap();
+        let byte_count = cfg.byte_count as usize;
         rt.spawn(async move {
-            let mut buf = vec![0; PACKET_SIZE];
+            let mut buf = vec![0; byte_count];
             loop {
                 match stream.read_exact(&mut buf).await {
                     Ok(_) => {}

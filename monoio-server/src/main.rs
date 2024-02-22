@@ -1,13 +1,17 @@
 use std::sync::Arc;
 
-use config::{ServerConfig, PACKET_SIZE};
-use monoio::{net::TcpListener, RuntimeBuilder, io::{AsyncReadRentExt, AsyncWriteRentExt}};
+use config::ServerConfig;
+use monoio::{
+    io::{AsyncReadRentExt, AsyncWriteRentExt},
+    net::TcpListener,
+    RuntimeBuilder,
+};
 
 fn main() {
     let cfg = Arc::new(ServerConfig::parse());
     println!(
         "Running ping pong server with Monoio.\nPacket size: {}\nListen {}\nCPU slot: {}",
-        PACKET_SIZE,
+        cfg.byte_count,
         cfg.bind,
         config::format_cores(&cfg.cores)
     );
@@ -34,8 +38,9 @@ fn main() {
 async fn serve(cfg: Arc<ServerConfig>) {
     let listener = TcpListener::bind(&cfg.bind).unwrap();
     while let Ok((mut stream, _)) = listener.accept().await {
+        let byte_count = cfg.byte_count as usize;
         monoio::spawn(async move {
-            let mut buf = vec![0; PACKET_SIZE];
+            let mut buf = vec![0; byte_count];
             loop {
                 let (r, buf_r) = stream.read_exact(buf).await;
                 if r.is_err() {

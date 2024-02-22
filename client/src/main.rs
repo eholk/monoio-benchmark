@@ -1,11 +1,14 @@
 use std::{
     cell::UnsafeCell,
     rc::Rc,
-    sync::{atomic::{AtomicUsize, AtomicU64}, Arc},
+    sync::{
+        atomic::{AtomicU64, AtomicUsize},
+        Arc,
+    },
     time::Duration,
 };
 
-use config::{ClientConfig, COUNT_GRAIN_PRE_SEC, PACKET_SIZE};
+use config::{ClientConfig, COUNT_GRAIN_PRE_SEC};
 use local_sync::semaphore::Semaphore;
 use monoio::{
     io::{AsyncReadRentExt, AsyncWriteRentExt},
@@ -22,7 +25,7 @@ Connection count per core: {}; Global connection count: {}
 QPS limit per core: {}; Global QPS limit: {}
 Target: {}
 CPU slot: {}",
-        PACKET_SIZE,
+        cfg.byte_count,
         cfg.conns_per_core,
         cfg.conns_per_core * cfg.cores.len(),
         cfg.qps_per_core.unwrap_or(0),
@@ -46,7 +49,11 @@ CPU slot: {}",
         let eps_ = eps.clone();
         std::thread::spawn(move || {
             monoio::utils::bind_to_cpu_set(Some(cpu_)).unwrap();
-            let mut rt = RuntimeBuilder::<monoio::IoUringDriver>::new().with_entries(2560).enable_timer().build().unwrap();
+            let mut rt = RuntimeBuilder::<monoio::IoUringDriver>::new()
+                .with_entries(2560)
+                .enable_timer()
+                .build()
+                .unwrap();
             rt.block_on(run_thread(count_, eps_, cfg_));
             println!("Thread {} finished", cpu_);
         });
@@ -88,6 +95,7 @@ async fn run_thread(count: Arc<AtomicUsize>, eps: Arc<AtomicU64>, cfg: Arc<Clien
             eps_tls.clone(),
             sem.clone(),
             cfg.target.clone(),
+            cfg.byte_count,
         )));
         // Wait a little bit to keep from overloading the server.
         monoio::time::sleep(Duration::from_millis(10)).await;
@@ -112,8 +120,9 @@ async fn run_conn(
     eps: Rc<UnsafeCell<u64>>,
     qps_per_conn: Option<Rc<Semaphore>>,
     target: String,
+    byte_count: u32,
 ) {
-    let mut buf = vec![0; PACKET_SIZE];
+    let mut buf = vec![0; byte_count as usize];
     let mut stream = TcpStream::connect(target).await.unwrap();
 
     loop {
