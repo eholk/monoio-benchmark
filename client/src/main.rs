@@ -124,14 +124,14 @@ async fn run_conn(
         if let Err(e) = w {
             // The connection is closed.
             println!("Write failed, connection exit");
-            println!("Error: {:?}", e);
+            println!("Error: {e}");
             return;
         }
         let (r, buf_r) = stream.read_exact(buf_w).await;
         if let Err(e) = r {
             // The connection is closed.
             println!("Read failed, connection exit");
-            println!("Error: {:?}", e);
+            println!("Error: {e}");
             return;
         }
         let eps_ = begin.elapsed().as_micros() as u64;
